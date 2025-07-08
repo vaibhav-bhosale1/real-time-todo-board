@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Task = require('../models/Task');
 const { io } = require('../server');
 const User = require('../models/User'); // Needed for Smart Assign and assignedTo validation
+const logAction = require('../utils/logAction'); 
 
 // Column names for validation (from assignment brief)
 const COLUMN_NAMES = ['Todo', 'In Progress', 'Done']; 
@@ -69,6 +70,13 @@ const createTask = asyncHandler(async (req, res) => {
   if (populatedTask) {
     // Emit 'newTask' event to all connected clients
     io.emit('taskCreated', populatedTask); // Emitting the new task data
+     await logAction(
+      req.user.id,
+      'created',
+      populatedTask._id,
+      populatedTask.title,
+      `${req.user.username} created task "${populatedTask.title}"`
+    );
     res.status(201).json(populatedTask);
   } else {
     res.status(400);
@@ -117,7 +125,11 @@ const updateTask = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error('Assigned user not found.');
     }
-  }
+  
+}
+
+const oldStatus = task.status;
+  const oldAssignedTo = task.assignedTo ? task.assignedTo.toString() : null;
 
   const updatedTask = await Task.findByIdAndUpdate(
     taskId,
@@ -134,6 +146,25 @@ const updateTask = asyncHandler(async (req, res) => {
 
   // Emit 'taskUpdated' event to all connected clients
   io.emit('taskUpdated', updatedTask); // Emitting the updated task data
+
+  let updateDescription = `${req.user.username} updated task "${updatedTask.title}"`;
+  if (status && status !== oldStatus) {
+    updateDescription += ` (status changed from ${oldStatus} to ${status})`;
+  }
+  if (assignedTo && assignedTo !== oldAssignedTo) {
+    const assignedUsername = updatedTask.assignedTo ? updatedTask.assignedTo.username : 'unassigned';
+    updateDescription += ` (assigned to ${assignedUsername})`;
+  } else if (!assignedTo && oldAssignedTo) { // Task was unassigned
+      updateDescription += ` (unassigned)`;
+  }
+
+  await logAction(
+    req.user.id,
+    'updated',
+    updatedTask._id,
+    updatedTask.title,
+    updateDescription
+  );
   res.status(200).json(updatedTask);
 });
 
@@ -153,10 +184,20 @@ const deleteTask = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to delete this task');
   }
 
+ 
+
+    const deletedTaskTitle = task.title; // Capture title before deletion
   await task.deleteOne();
 
   // Emit 'taskDeleted' event to all connected clients
   io.emit('taskDeleted', req.params.id); // Emitting the ID of the deleted task
+  await logAction(
+    req.user.id,
+    'deleted',
+    null, // No taskId reference as it's deleted
+    deletedTaskTitle,
+    `${req.user.username} deleted task "${deletedTaskTitle}"`
+  );
   res.status(200).json({ id: req.params.id, message: 'Task removed' });
 });
 
@@ -205,6 +246,13 @@ const smartAssignTask = asyncHandler(async (req, res) => {
 
   // Emit 'taskUpdated' event for smart assign as well
   io.emit('taskUpdated', updatedTask);
+   await logAction(
+    req.user.id,
+    'assigned',
+    updatedTask._id,
+    updatedTask.title,
+    `${req.user.username} smart-assigned task "${updatedTask.title}" to ${updatedTask.assignedTo.username}`
+  );
   res.status(200).json(updatedTask);
 });
 
