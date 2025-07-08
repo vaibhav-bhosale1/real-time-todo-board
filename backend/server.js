@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
-const userRoutes = require('./routes/userRoutes'); // Import user routes
+const userRoutes = require('./routes/userRoutes');
+const taskRoutes = require('./routes/taskRoutes'); // Assuming you've added this already
 
 // Connect to database
 connectDB();
@@ -9,8 +10,8 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware to parse JSON bodies
-app.use(express.json());
+// IMPORTANT: Middleware to parse JSON bodies - This must be BEFORE your routes
+app.use(express.json()); // This line is crucial for parsing JSON request bodies
 
 // Basic route
 app.get('/', (req, res) => {
@@ -19,6 +20,9 @@ app.get('/', (req, res) => {
 
 // User Routes
 app.use('/api/users', userRoutes);
+// Task Routes (if you've already added them)
+app.use('/api/tasks', taskRoutes);
+
 
 // Basic Error Handling Middleware (can be expanded later)
 app.use((err, req, res, next) => {
