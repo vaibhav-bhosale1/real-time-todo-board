@@ -1,10 +1,9 @@
 import React from 'react';
-import { Droppable } from '@hello-pangea/dnd';
-import { Draggable } from '@hello-pangea/dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskCard from './TaskCard';
 import './Column.css';
 
-function Column({ title, tasks, id }) {
+function Column({ title, tasks, id, onTaskUpdate, onConflict }) { // Receive new props
   return (
     <Droppable droppableId={id}>
       {(provided, snapshot) => (
@@ -30,7 +29,11 @@ function Column({ title, tasks, id }) {
                       {...provided.dragHandleProps}
                       className={`task-card-wrapper ${snapshot.isDragging ? 'is-dragging' : ''}`}
                     >
-                      <TaskCard task={task} />
+                      <TaskCard
+                          task={task}
+                          onTaskUpdate={onTaskUpdate} // Pass it down
+                          onConflict={onConflict}    // Pass it down
+                      />
                     </div>
                   )}
                 </Draggable>

@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import TaskCard from '../components/TaskCard';
 import ActivityLog from '../components/ActivityLog';
 import Column from '../components/Column';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import io from 'socket.io-client'; // Import Socket.IO client
+import { DragDropContext } from '@hello-pangea/dnd';
+import io from 'socket.io-client';
 import './KanbanBoard.css';
 
 // Initialize Socket.IO client
-const socket = io('http://localhost:5000'); // Ensure this matches your backend URL
+const socket = io('http://localhost:5000'); // Adjust if deployed elsewhere
 
 function KanbanBoard() {
   const [tasks, setTasks] = useState([]);
@@ -58,41 +58,33 @@ function KanbanBoard() {
       setTasks(prevTasks => prevTasks.filter(task => task._id !== deletedTaskId));
     });
 
-    // Clean up socket listeners on component unmount
     return () => {
       socket.off('taskCreated');
       socket.off('taskUpdated');
       socket.off('taskDeleted');
     };
-  }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
-    socket.disconnect(); // Disconnect socket on logout
+    socket.disconnect();
   };
 
   const onDragEnd = async (result) => {
     const { source, destination, draggableId } = result;
 
-    if (!destination) {
-      return;
-    }
-
-    if (
+    if (!destination || (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
-    ) {
-      return;
-    }
+    )) return;
 
     const draggedTask = tasks.find(task => task._id === draggableId);
     if (!draggedTask) return;
 
     const newStatus = destination.droppableId;
+    const originalTasks = tasks;
 
-    // Optimistic update
-    const originalTasks = tasks; // Store original state for potential rollback
     setTasks(prevTasks =>
       prevTasks.map(task =>
         task._id === draggableId ? { ...task, status: newStatus } : task
@@ -104,20 +96,27 @@ function KanbanBoard() {
         status: newStatus,
         version: draggedTask.version,
       });
-      // Backend will emit 'taskUpdated' via Socket.IO, which will re-sync our state
-      // No need to fetchTasks() immediately here, as Socket.IO will handle it.
     } catch (err) {
       console.error('Error updating task status:', err);
       setError(err.response?.data?.message || 'Failed to update task status.');
-      setTasks(originalTasks); // Revert on error
+      setTasks(originalTasks);
 
       if (err.response && err.response.status === 409) {
-          alert('Conflict detected! The task was modified by someone else. Reverting your changes to show the latest state.');
-          fetchTasks(); // Force a re-fetch to get the true latest state
+        alert('Conflict detected! The task was modified by someone else. Reverting your changes to show the latest state.');
+        fetchTasks();
       }
     }
   };
 
+  const handleConflict = async (taskId, conflictDetails) => {
+    alert(`Conflict detected for task "${conflictDetails.task.title}"!
+Your attempted changes: (e.g., smart assign)
+Current database state:
+Status: ${conflictDetails.task.status}
+Assigned to: ${conflictDetails.task.assignedTo?.username || 'None'}
+Please refresh or resolve manually.`);
+    fetchTasks();
+  };
 
   const todoTasks = tasks.filter(task => task.status === 'Todo');
   const inProgressTasks = tasks.filter(task => task.status === 'In Progress');
@@ -126,7 +125,7 @@ function KanbanBoard() {
   if (loading) return <div className="loading-spinner"></div>;
   if (error) return <div className="error-message">{error}</div>;
 
-return (
+  return (
     <div className="kanban-board-container">
       <header className="kanban-header">
         <h1>Kanban Board</h1>
@@ -134,13 +133,32 @@ return (
       </header>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="kanban-board-grid">
-          <Column title="Todo" tasks={todoTasks} id="Todo" />
-          <Column title="In Progress" tasks={inProgressTasks} id="In Progress" />
-          <Column title="Done" tasks={doneTasks} id="Done" />
+          <Column
+            title="Todo"
+            tasks={todoTasks}
+            id="Todo"
+            onTaskUpdate={fetchTasks}
+            onConflict={handleConflict}
+          />
+          <Column
+            title="In Progress"
+            tasks={inProgressTasks}
+            id="In Progress"
+            onTaskUpdate={fetchTasks}
+            onConflict={handleConflict}
+          />
+          <Column
+            title="Done"
+            tasks={doneTasks}
+            id="Done"
+            onTaskUpdate={fetchTasks}
+            onConflict={handleConflict}
+          />
         </div>
       </DragDropContext>
-      <ActivityLog /> {/* Add the ActivityLog component here */}
+      <ActivityLog />
     </div>
   );
 }
 
+export default KanbanBoard;

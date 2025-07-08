@@ -108,3 +108,25 @@
     box-shadow: none;
     transform: rotate(2deg); /* Small rotation for a "dragging" feel */
 }
+
+
+.smart-assign-button {
+    background-color: #007bff; /* Primary blue */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px; /* Add some space */
+}
+
+.smart-assign-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.smart-assign-button:active {
+    transform: translateY(0);
+}
