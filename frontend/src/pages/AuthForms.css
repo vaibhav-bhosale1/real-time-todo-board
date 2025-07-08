@@ -1,4 +1,3 @@
-/* This file is shared between LoginPage.js and RegisterPage.js */
 .form-container {
     max-width: 400px;
     margin: 50px auto;
@@ -12,6 +11,7 @@
 .form-container h2 {
     color: #2c3e50;
     margin-bottom: 25px;
+    font-size: 2rem;
 }
 
 .form-group {
@@ -29,12 +29,12 @@
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="password"] {
-    width: calc(100% - 20px); /* Account for padding */
-    padding: 12px 10px;
+    width: calc(100% - 24px); /* Account for padding and border */
+    padding: 12px;
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-group input[type="text"]:focus,
@@ -42,7 +42,7 @@
 .form-group input[type="password"]:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 .form-container button {
@@ -54,30 +54,65 @@
     border-radius: 5px;
     font-size: 1.1rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    position: relative; /* For custom animation */
+    overflow: hidden;
 }
 
 .form-container button:hover {
     background-color: #0056b3;
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.form-container button:active {
+    transform: translateY(0); /* Press down on click */
 }
 
 .form-container button:disabled {
     background-color: #a0cbed;
     cursor: not-allowed;
+    transform: none;
+}
+
+/* Custom button animation for hover effect */
+.form-container button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease-in-out;
+    z-index: 0;
+}
+
+.form-container button:hover::before {
+    left: 0;
 }
 
 .error-message {
     color: #dc3545;
     font-size: 0.9em;
-    margin-top: 5px;
+    margin-top: -10px; /* Adjust spacing */
     margin-bottom: 15px;
+    text-align: center;
+    background-color: #ffebe8;
+    border: 1px solid #dc3545;
+    padding: 8px;
+    border-radius: 5px;
 }
 
 .success-message {
     color: #28a745;
     font-size: 0.9em;
-    margin-top: 5px;
+    margin-top: -10px;
     margin-bottom: 15px;
+    text-align: center;
+    background-color: #e6ffed;
+    border: 1px solid #28a745;
+    padding: 8px;
+    border-radius: 5px;
 }
 
 .form-link {
@@ -86,8 +121,33 @@
     color: #007bff;
     text-decoration: none;
     font-size: 0.95rem;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
 }
 
 .form-link:hover {
     text-decoration: underline;
+    color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .form-container {
+        margin: 20px 15px;
+        padding: 20px;
+    }
+    .form-container h2 {
+        font-size: 1.6rem;
+    }
+    .form-group input {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+    .form-container button {
+        font-size: 1rem;
+        padding: 10px;
+    }
+    .error-message, .success-message {
+        font-size: 0.85em;
+        padding: 6px;
+    }
 }

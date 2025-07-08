@@ -4,7 +4,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 15px;
     margin-bottom: 15px;
-    cursor: grab;
+    cursor: grab; /* Indicate draggable */
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
@@ -13,10 +13,12 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
+/* Style when dragging */
 .task-card.is-dragging {
     opacity: 0.7;
     border: 2px dashed #007bff;
     box-shadow: none;
+    transform: rotate(2deg); /* A subtle visual cue */
 }
 
 
@@ -25,6 +27,7 @@
     color: #333;
     margin-top: 0;
     margin-bottom: 10px;
+    word-wrap: break-word; /* Prevent long titles from overflowing */
 }
 
 .task-description {
@@ -32,13 +35,18 @@
     color: #666;
     margin-bottom: 10px;
     line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .task-assigned-to {
     font-size: 0.85rem;
     color: #555;
     margin-bottom: 10px;
+    font-weight: normal;
+}
+.task-assigned-to strong {
     font-weight: bold;
+    color: #007bff; /* Highlight assigned user */
 }
 
 .task-meta {
@@ -57,6 +65,7 @@
     font-weight: bold;
     text-transform: capitalize;
     color: white;
+    font-size: 0.75rem;
 }
 
 .priority-high {
@@ -65,11 +74,15 @@
 
 .priority-medium {
     background-color: #ffc107; /* Orange/Yellow */
-    color: #333;
+    color: #333; /* Darker text for contrast */
 }
 
 .priority-low {
     background-color: #28a745; /* Green */
+}
+
+.priority-default { /* For tasks without explicit priority */
+    background-color: #6c757d; /* Grey */
 }
 
 .task-status {
@@ -77,56 +90,58 @@
     padding: 4px 8px;
     border-radius: 4px;
     color: #555;
+    font-size: 0.75rem;
 }
 
 .task-actions {
-    margin-top: 10px;
+    margin-top: 15px;
     text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px; /* Space between buttons */
 }
 
 .task-actions button {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 0.85rem;
-    margin-left: 8px;
-    transition: background-color 0.3s ease;
+    font-size: 0.8rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .task-actions button:hover {
     background-color: #0056b3;
+    transform: translateY(-1px);
 }
 
-/* ... existing styles ... */
-
-.task-card-wrapper.is-dragging .task-card {
-    opacity: 0.7;
-    border: 2px dashed #007bff;
-    box-shadow: none;
-    transform: rotate(2deg); /* Small rotation for a "dragging" feel */
+.task-actions button.delete-button {
+    background-color: #dc3545;
+}
+.task-actions button.delete-button:hover {
+    background-color: #c82333;
 }
 
-
-.smart-assign-button {
-    background-color: #007bff; /* Primary blue */
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 10px; /* Add some space */
-}
-
-.smart-assign-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-}
-
-.smart-assign-button:active {
-    transform: translateY(0);
+/* Responsive adjustments for TaskCard */
+@media (max-width: 480px) {
+    .task-card {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    .task-title {
+        font-size: 1rem;
+    }
+    .task-description, .task-assigned-to {
+        font-size: 0.85rem;
+    }
+    .task-priority, .task-status {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    .task-actions button {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
 }

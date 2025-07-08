@@ -2,6 +2,7 @@
     padding: 20px;
     background-color: #f0f2f5;
     min-height: 100vh;
+    box-sizing: border-box; /* Include padding in element's total width and height */
 }
 
 .kanban-header {
@@ -21,62 +22,78 @@
 
 .logout-button {
     padding: 10px 20px;
-    background-color: #dc3545;
+    background-color: #dc3545; /* Red */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1; /* Ensure ::before is behind */
 }
 
 .logout-button:hover {
     background-color: #c82333;
+    transform: translateY(-2px);
 }
 
-.kanban-board-grid {
+.logout-button:active {
+    transform: translateY(0);
+}
+
+/* Custom button animation for hover effect */
+.logout-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease-in-out;
+    z-index: -1; /* Ensure it's behind the text */
+}
+
+.logout-button:hover::before {
+    left: 0;
+}
+
+.kanban-columns-grid {
     display: grid;
+    /* Responsive grid: 3 columns normally, stack on smaller screens */
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 25px;
     align-items: start; /* Align columns to the top */
 }
 
-.loading-spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #007bff;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 50px auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.error-message {
+.kanban-loading, .kanban-error {
     text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.kanban-error {
     color: #dc3545;
-    padding: 20px;
     background-color: #ffebe8;
     border: 1px solid #dc3545;
     border-radius: 8px;
-    margin: 50px auto;
-    max-width: 500px;
+    margin: 30px auto;
+    max-width: 600px;
 }
 
-
+/* Responsive adjustments */
 @media (max-width: 1024px) {
-    .kanban-board-grid {
+    .kanban-columns-grid {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 20px;
     }
 }
 
 @media (max-width: 768px) {
-    .kanban-board-grid {
+    .kanban-columns-grid {
         grid-template-columns: 1fr; /* Stack columns on smaller screens */
         padding: 0 10px;
     }
@@ -89,28 +106,10 @@
         font-size: 1.8rem;
         margin-bottom: 15px;
     }
-    .column {
-        margin-bottom: 20px; /* Space between stacked columns */
-    }
 }
 
 @media (max-width: 480px) {
     .kanban-board-container {
-        padding: 10px;
-    }
-    .form-container {
-        margin: 20px auto;
-        padding: 20px;
-    }
-    .form-container h2 {
-        font-size: 1.8rem;
-    }
-    .form-group input {
-        font-size: 0.9rem;
-        padding: 10px;
-    }
-    .form-container button {
-        font-size: 1rem;
         padding: 10px;
     }
 }

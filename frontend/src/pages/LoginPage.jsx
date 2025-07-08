@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './AuthForms.css'; // Shared CSS for auth forms
+import { loginUser } from '../services/authService'; // Import loginUser
+import './AuthForms.css';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,13 +22,8 @@ function LoginPage() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
-        email,
-        password,
-      });
-
-      localStorage.setItem('token', response.data.token);
-      navigate('/board'); // Redirect to Kanban board
+      await loginUser(email, password); // Call loginUser service
+      navigate('/board'); // Redirect to Kanban board on success
     } catch (err) {
       console.error('Login error:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
@@ -49,6 +44,7 @@ function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            aria-label="Email"
           />
         </div>
         <div className="form-group">
@@ -59,6 +55,7 @@ function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            aria-label="Password"
           />
         </div>
         {error && <p className="error-message">{error}</p>}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './AuthForms.css'; // Shared CSS for auth forms
+import { registerUser } from '../services/authService'; // Import registerUser
+import './AuthForms.css';
 
 function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -19,6 +19,7 @@ function RegisterPage() {
     setSuccess('');
     setLoading(true);
 
+    // Client-side validation
     if (!username || !email || !password || !confirmPassword) {
       setError('Please fill in all fields.');
       setLoading(false);
@@ -31,6 +32,12 @@ function RegisterPage() {
       return;
     }
 
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      setLoading(false);
+      return;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address.');
@@ -39,18 +46,12 @@ function RegisterPage() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', {
-        username,
-        email,
-        password,
-      });
-
-      setSuccess(response.data.message || 'Registration successful! You can now login.');
+      const result = await registerUser(username, email, password); // Call registerUser service
+      setSuccess(result.message || 'Registration successful! You can now login.');
       setUsername('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-
       setTimeout(() => {
         navigate('/login');
       }, 2000);
@@ -74,6 +75,7 @@ function RegisterPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            aria-label="Username"
           />
         </div>
         <div className="form-group">
@@ -84,6 +86,7 @@ function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            aria-label="Email"
           />
         </div>
         <div className="form-group">
@@ -94,6 +97,7 @@ function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            aria-label="Password"
           />
         </div>
         <div className="form-group">
@@ -104,6 +108,7 @@ function RegisterPage() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+            aria-label="Confirm Password"
           />
         </div>
         {error && <p className="error-message">{error}</p>}

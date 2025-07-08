@@ -1,0 +1,89 @@
+.kanban-column {
+    background-color: #e0e6ed;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 300px; /* Ensure columns have a minimum height for better visual */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.kanban-column-title {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #a8b0b9;
+    text-align: center;
+    position: sticky; /* Make title stick on scroll if list is long */
+    top: 0;
+    background-color: #e0e6ed; /* Match column background */
+    z-index: 10;
+}
+
+.task-list {
+    flex-grow: 1; /* Allow the task list to take up remaining space */
+    overflow-y: auto; /* Enable scrolling if too many tasks */
+    padding-right: 5px; /* For scrollbar spacing */
+    min-height: 50px; /* Ensure a minimum area for dropping */
+}
+
+/* Custom scrollbar styles */
+.task-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.task-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.task-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.no-tasks {
+    color: #666;
+    text-align: center;
+    margin-top: 30px;
+    font-style: italic;
+    padding: 10px;
+    background-color: #f7f7f7;
+    border-radius: 5px;
+    border: 1px dashed #ccc;
+}
+
+/* Styling for drag-and-drop placeholder if needed */
+.task-placeholder {
+  background-color: rgba(0, 123, 255, 0.1);
+  border: 1px dashed #007bff;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  height: 60px; /* Approximate height of a task card */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #007bff;
+  font-style: italic;
+}
+
+/* Responsive adjustments for KanbanColumn */
+@media (max-width: 480px) {
+    .kanban-column {
+        padding: 10px;
+        min-height: 250px;
+    }
+    .kanban-column-title {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+    .task-list {
+        padding-right: 2px;
+    }
+}
