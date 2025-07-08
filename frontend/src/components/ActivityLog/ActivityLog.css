@@ -1,0 +1,130 @@
+.activity-log-panel {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    max-width: 1200px; /* Match Kanban board width */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.activity-log-panel h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.log-list {
+    max-height: 400px; /* Limit height and enable scrolling */
+    overflow-y: auto;
+    padding-right: 10px; /* For scrollbar spacing */
+}
+
+/* Custom scrollbar for activity log */
+.log-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.log-list::-webkit-scrollbar-track {
+    background: #f8f8f8;
+    border-radius: 10px;
+}
+
+.log-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.log-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.log-entry {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+}
+
+.log-timestamp {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.log-description {
+    font-size: 0.9rem;
+    color: #444;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.log-description strong {
+    color: #007bff; /* Highlight username */
+}
+
+.no-logs {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 5px;
+    border: 1px dashed #ccc;
+}
+
+.activity-log-loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 1rem;
+    color: #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+}
+
+.activity-log-error {
+    text-align: center;
+    color: #dc3545;
+    padding: 10px;
+    background-color: #ffebe8;
+    border: 1px solid #dc3545;
+    border-radius: 5px;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .activity-log-panel {
+        padding: 15px;
+        margin-top: 20px;
+    }
+    .activity-log-panel h3 {
+        font-size: 1.3rem;
+    }
+    .log-entry {
+        padding: 8px 12px;
+    }
+    .log-timestamp {
+        font-size: 0.7rem;
+    }
+    .log-description {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .activity-log-panel {
+        margin: 15px 10px;
+    }
+}

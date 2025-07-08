@@ -8,6 +8,7 @@ import TaskForm from '../common/TaskForm';
 import TaskCard from './TaskCard';
 import socket from '../../utils/socket';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import ActivityLog from '../ActivityLog/ActivityLog'; // Import ActivityLog component
 import './KanbanBoard.css';
 import '../common/LoadingSpinner.css';
 
@@ -89,7 +90,7 @@ function KanbanBoard() {
 
   const handleLogout = () => {
     logout();
-     socket.disconnect();
+      socket.disconnect();
     navigate('/login');
   };
 
@@ -107,7 +108,7 @@ function KanbanBoard() {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
         await deleteTask(taskId);
-       
+        
         setError('');
       } catch (err) {
         console.error('Error deleting task:', err);
@@ -285,17 +286,17 @@ function KanbanBoard() {
           {['Todo', 'In Progress', 'Done'].map(status => (
             <Droppable droppableId={status} key={status}>
               {(provided, snapshot) => (
-               <KanbanColumn
-                title={status}
-                id={status}
-                tasks={getTasksForColumn(status)}
-                ref={provided.innerRef} // <--- Pass ref directly here
-                {...provided.droppableProps} // <--- Spread droppableProps here
-                isDraggingOver={snapshot.isDraggingOver}
-                onEditTask={handleEditTask}
-                onDeleteTask={handleDeleteTask}
-                onSmartAssign={handleSmartAssign}
-              >
+                <KanbanColumn
+                  title={status}
+                  id={status}
+                  tasks={getTasksForColumn(status)}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  isDraggingOver={snapshot.isDraggingOver}
+                  onEditTask={handleEditTask}
+                  onDeleteTask={handleDeleteTask}
+                  onSmartAssign={handleSmartAssign}
+                >
                   {provided.placeholder}
                 </KanbanColumn>
               )}
@@ -330,10 +331,10 @@ function KanbanBoard() {
               <h3>Your Attempted Changes</h3>
               {attemptedChanges ? (
                 <>
-                  <p><strong>Title:</strong> {attemptedChanges.title || conflictedTask?.title}</p>
-                  <p><strong>Description:</strong> {attemptedChanges.description || conflictedTask?.description}</p>
-                  <p><strong>Status:</strong> {attemptedChanges.status || conflictedTask?.status}</p>
-                  <p><strong>Priority:</strong> {attemptedChanges.priority || conflictedTask?.priority}</p>
+                  <p><strong>Title:</strong> {attemptedChanges.title || conflictedTask?.title || 'N/A'}</p>
+                  <p><strong>Description:</strong> {attemptedChanges.description || conflictedTask?.description || 'N/A'}</p>
+                  <p><strong>Status:</strong> {attemptedChanges.status || conflictedTask?.status || 'N/A'}</p>
+                  <p><strong>Priority:</strong> {attemptedChanges.priority || conflictedTask?.priority || 'N/A'}</p>
                 </>
               ) : (
                 <p>Changes related to smart assign or status update (no direct input changes).</p>
@@ -347,6 +348,7 @@ function KanbanBoard() {
                   <p><strong>Description:</strong> {latestTaskVersion.description}</p>
                   <p><strong>Status:</strong> {latestTaskVersion.status}</p>
                   <p><strong>Priority:</strong> {latestTaskVersion.priority}</p>
+                  <p><strong>Last Updated At:</strong> {new Date(latestTaskVersion.updatedAt).toLocaleString()}</p>
                   <p><strong>Last Updated By:</strong> {latestTaskVersion.user?.username || 'Unknown'}</p>
                 </>
               ) : (
@@ -364,6 +366,8 @@ function KanbanBoard() {
           </div>
         </div>
       </Modal>
+      {/* Activity Log will be rendered here */}
+      <ActivityLog />
     </div>
   );
 }

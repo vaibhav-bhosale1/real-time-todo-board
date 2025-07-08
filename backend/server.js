@@ -7,6 +7,7 @@ const dotenv = require('dotenv').config();
 const connectDB = require('./config/db'); // Your DB connection
 const taskRoutes = require('./routes/taskRoutes'); // Your task routes
 const userRoutes = require('./routes/userRoutes'); // Your user routes
+const actionLogRoutes = require('./routes/actionLogRoutes');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const path = require('path');
 const cors = require('cors'); // Import cors
@@ -54,6 +55,7 @@ app.use(cors({
 // Routes
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/actionlogs', actionLogRoutes);
 // Add other routes as needed
 
 // Serve frontend (if applicable for deployment)
