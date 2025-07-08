@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Task = require('../models/Task');
+const { io } = require('../server');
 const User = require('../models/User'); // Needed for Smart Assign and assignedTo validation
 
 // Column names for validation (from assignment brief)
@@ -21,10 +22,6 @@ const getTasks = asyncHandler(async (req, res) => {
 
   res.status(200).json(tasks);
 });
-
-// @desc    Create new task
-// @route   POST /api/tasks
-// @access  Private
 const createTask = asyncHandler(async (req, res) => {
   const { title, description, status, priority, assignedTo } = req.body;
 
@@ -33,23 +30,19 @@ const createTask = asyncHandler(async (req, res) => {
     throw new Error('Please add a title and status for the task');
   }
 
-  // Validation: Task titles must be unique per board [cite: 38]
-  // For now, let's consider "per board" as unique for the creating user's tasks
-  // In a truly shared board, this would require a 'board' ID.
-  // For this assignment, we'll assume uniqueness among tasks the user has access to.
+  // Validation: Task titles must be unique per board
   const existingTask = await Task.findOne({ user: req.user.id, title: title });
   if (existingTask) {
     res.status(400);
-    throw new Error('Task title must be unique.'); 
+    throw new Error('Task title must be unique.');
   }
 
-  // Validation: Task titles must not match column names [cite: 38]
+  // Validation: Task titles must not match column names
   if (COLUMN_NAMES.includes(title)) {
     res.status(400);
-    throw new Error(`Task title cannot be "${title}", as it matches a column name.`); 
+    throw new Error(`Task title cannot be "${title}", as it matches a column name.`);
   }
 
-  // Validate assignedTo if provided
   let assignedUser = null;
   if (assignedTo) {
     assignedUser = await User.findById(assignedTo);
@@ -60,7 +53,7 @@ const createTask = asyncHandler(async (req, res) => {
   }
 
   const task = await Task.create({
-    user: req.user.id, // Creator of the task is the logged-in user
+    user: req.user.id,
     title,
     description,
     status,
@@ -68,7 +61,19 @@ const createTask = asyncHandler(async (req, res) => {
     assignedTo: assignedUser ? assignedUser._id : undefined,
   });
 
-  res.status(201).json(task);
+  // Populate user and assignedTo details before emitting
+  const populatedTask = await Task.findById(task._id)
+                            .populate('user', 'username email')
+                            .populate('assignedTo', 'username email');
+
+  if (populatedTask) {
+    // Emit 'newTask' event to all connected clients
+    io.emit('taskCreated', populatedTask); // Emitting the new task data
+    res.status(201).json(populatedTask);
+  } else {
+    res.status(400);
+    throw new Error('Invalid task data');
+  }
 });
 
 // @desc    Update a task
@@ -78,7 +83,6 @@ const updateTask = asyncHandler(async (req, res) => {
   const { title, description, status, priority, assignedTo } = req.body;
   const taskId = req.params.id;
 
-  // Find the task
   const task = await Task.findById(taskId);
 
   if (!task) {
@@ -86,30 +90,26 @@ const updateTask = asyncHandler(async (req, res) => {
     throw new Error('Task not found');
   }
 
-  // Ensure the logged-in user is the creator of the task OR is the assigned user
-  // or if implementing a truly collaborative board, allow update if user has access.
-  // For now, let's assume only the creator or assigned user can update.
   if (task.user.toString() !== req.user.id && (task.assignedTo && task.assignedTo.toString() !== req.user.id)) {
     res.status(401);
     throw new Error('Not authorized to update this task');
   }
 
-  // Validation: Task titles must be unique per board (excluding current task's title) [cite: 38]
+  // Validation: Task titles must be unique per board (excluding current task's title)
   if (title && title !== task.title) {
     const existingTask = await Task.findOne({ user: req.user.id, title: title });
     if (existingTask && existingTask._id.toString() !== taskId) {
       res.status(400);
-      throw new Error('Task title must be unique.'); 
+      throw new Error('Task title must be unique.');
     }
   }
 
-  // Validation: Task titles must not match column names [cite: 38]
+  // Validation: Task titles must not match column names
   if (title && COLUMN_NAMES.includes(title)) {
     res.status(400);
-    throw new Error(`Task title cannot be "${title}", as it matches a column name.`); 
+    throw new Error(`Task title cannot be "${title}", as it matches a column name.`);
   }
 
-  // Validate assignedTo if provided
   let assignedUser = null;
   if (assignedTo) {
     assignedUser = await User.findById(assignedTo);
@@ -126,11 +126,14 @@ const updateTask = asyncHandler(async (req, res) => {
       description: description || task.description,
       status: status || task.status,
       priority: priority || task.priority,
-      assignedTo: assignedUser ? assignedUser._id : undefined, // Allow setting to undefined for unassigning
+      assignedTo: assignedUser ? assignedUser._id : null, // Set to null for unassigning, not undefined
     },
-    { new: true } // Return the updated document
-  );
+    { new: true }
+  ).populate('user', 'username email') // Populate creator details
+   .populate('assignedTo', 'username email'); // Populate assigned user details
 
+  // Emit 'taskUpdated' event to all connected clients
+  io.emit('taskUpdated', updatedTask); // Emitting the updated task data
   res.status(200).json(updatedTask);
 });
 
@@ -145,17 +148,17 @@ const deleteTask = asyncHandler(async (req, res) => {
     throw new Error('Task not found');
   }
 
-  // Ensure the logged-in user is the creator of the task
   if (task.user.toString() !== req.user.id) {
     res.status(401);
     throw new Error('Not authorized to delete this task');
   }
 
-  await task.deleteOne(); // Mongoose 6+ uses deleteOne() or deleteMany()
+  await task.deleteOne();
 
+  // Emit 'taskDeleted' event to all connected clients
+  io.emit('taskDeleted', req.params.id); // Emitting the ID of the deleted task
   res.status(200).json({ id: req.params.id, message: 'Task removed' });
 });
-
 
 // @desc    Assign a task to the user with the fewest current active tasks
 // @route   PUT /api/tasks/:id/smart-assign
@@ -170,9 +173,7 @@ const smartAssignTask = asyncHandler(async (req, res) => {
     throw new Error('Task not found');
   }
 
-  // We need to find all active users (users who have created or been assigned tasks)
-  // And then count their active (Todo or In Progress) tasks
-  const users = await User.find({}); // Get all users in the system
+  const users = await User.find({});
 
   let userTaskCounts = [];
 
@@ -186,7 +187,6 @@ const smartAssignTask = asyncHandler(async (req, res) => {
     userTaskCounts.push({ userId: user._id, username: user.username, count: activeTasksCount });
   }
 
-  // Sort by task count to find the user with the fewest tasks
   userTaskCounts.sort((a, b) => a.count - b.count);
 
   if (userTaskCounts.length === 0) {
@@ -200,8 +200,11 @@ const smartAssignTask = asyncHandler(async (req, res) => {
     taskId,
     { assignedTo: userToAssign.userId },
     { new: true }
-  ).populate('assignedTo', 'username email'); // Populate to return assigned user details
+  ).populate('assignedTo', 'username email')
+   .populate('user', 'username email'); // Also populate creator for consistency in real-time updates
 
+  // Emit 'taskUpdated' event for smart assign as well
+  io.emit('taskUpdated', updatedTask);
   res.status(200).json(updatedTask);
 });
 
