@@ -1,8 +1,10 @@
+// frontend/src/components/KanbanBoard/TaskCard.jsx
+
 import React from 'react';
 import './TaskCard.css';
 
-// Added props: onEdit, onDelete, onSmartAssign
-function TaskCard({ task, onEdit, onDelete, onSmartAssign }) {
+// Use React.forwardRef to accept and apply the ref and draggable props from the parent Draggable
+const TaskCard = React.forwardRef(({ task, onEdit, onDelete, onSmartAssign, draggableProps, dragHandleProps }, ref) => {
   const getPriorityClass = (priority) => {
     switch (priority?.toLowerCase()) {
       case 'high':
@@ -17,7 +19,12 @@ function TaskCard({ task, onEdit, onDelete, onSmartAssign }) {
   };
 
   return (
-    <div className="task-card">
+    <div
+      className="task-card"
+      ref={ref} // Attach the forwarded ref directly to this div
+      {...draggableProps} // Apply draggable props here
+      {...dragHandleProps} // Apply drag handle props here
+    >
       <h3 className="task-title">{task.title}</h3>
       {task.description && <p className="task-description">{task.description}</p>}
       {task.assignedTo && task.assignedTo.username && (
@@ -36,6 +43,6 @@ function TaskCard({ task, onEdit, onDelete, onSmartAssign }) {
       </div>
     </div>
   );
-}
+});
 
 export default TaskCard;

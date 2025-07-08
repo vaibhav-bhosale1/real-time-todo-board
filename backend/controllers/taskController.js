@@ -20,9 +20,29 @@ const getTasks = asyncHandler(async (req, res) => {
     })
     .populate('user', 'username email') // Populate creator details
     .populate('assignedTo', 'username email'); // Populate assigned user details
-
+ 
     res.status(200).json(tasks);
 });
+
+
+
+
+// @desc    Get a single task by ID
+// @route   GET /api/tasks/:id
+// @access  Private
+const getTask = asyncHandler(async (req, res) => {
+    const task = await Task.findById(req.params.id)
+                            .populate('user', 'username email')
+                            .populate('assignedTo', 'username email');
+
+    if (!task) {
+        res.status(404);
+        throw new Error('Task not found');
+    }
+
+    res.status(200).json(task);
+});
+
 
 const createTask = asyncHandler(async (req, res) => {
     // Retrieve the Socket.IO instance from the app object
@@ -310,6 +330,7 @@ module.exports = {
     getTasks,
     createTask,
     updateTask,
+    getTask,
     deleteTask,
     smartAssignTask,
 };

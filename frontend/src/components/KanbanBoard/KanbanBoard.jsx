@@ -251,17 +251,17 @@ function KanbanBoard() {
           {['Todo', 'In Progress', 'Done'].map(status => (
             <Droppable droppableId={status} key={status}>
               {(provided, snapshot) => (
-                <KanbanColumn
-                  title={status}
-                  id={status}
-                  tasks={getTasksForColumn(status)}
-                  innerRef={provided.innerRef}
-                  {...provided.droppableProps}
-                  isDraggingOver={snapshot.isDraggingOver}
-                  onEditTask={handleEditTask}
-                  onDeleteTask={handleDeleteTask}
-                  onSmartAssign={handleSmartAssign}
-                >
+               <KanbanColumn
+                title={status}
+                id={status}
+                tasks={getTasksForColumn(status)}
+                ref={provided.innerRef} // <--- Pass ref directly here
+                {...provided.droppableProps} // <--- Spread droppableProps here
+                isDraggingOver={snapshot.isDraggingOver}
+                onEditTask={handleEditTask}
+                onDeleteTask={handleDeleteTask}
+                onSmartAssign={handleSmartAssign}
+              >
                   {provided.placeholder}
                 </KanbanColumn>
               )}

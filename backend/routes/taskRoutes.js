@@ -3,6 +3,7 @@ const {
   getTasks,
   createTask,
   updateTask,
+  getTask,
   deleteTask,
   smartAssignTask,
 } = require('../controllers/taskController');
@@ -11,7 +12,7 @@ const router = express.Router();
 
 // All task routes will be protected
 router.route('/').get(protect, getTasks).post(protect, createTask);
-router.route('/:id').put(protect, updateTask).delete(protect, deleteTask);
-router.put('/:id/smart-assign', protect, smartAssignTask); // Smart assign route [cite: 33]
+router.route('/:id').get(protect,getTask).put(protect, updateTask).delete(protect, deleteTask);
+router.route('/:id/smart-assign').put(protect, smartAssignTask);
 
 module.exports = router;
