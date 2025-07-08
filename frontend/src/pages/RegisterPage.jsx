@@ -31,7 +31,6 @@ function RegisterPage() {
       return;
     }
 
-    // Basic email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address.');
@@ -51,7 +50,7 @@ function RegisterPage() {
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-      // Optionally navigate to login page after a short delay
+
       setTimeout(() => {
         navigate('/login');
       }, 2000);
@@ -103,21 +102,4 @@ function RegisterPage() {
             type="password"
             id="confirmPassword"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p className="error-message">{error}</p>}
-        {success && <p className="success-message">{success}</p>}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-      </form>
-      <Link to="/login" className="form-link">
-        Already have an account? Login here.
-      </Link>
-    </div>
-  );
-}
-
-export default RegisterPage;
+            onChange={(e) => setConf
