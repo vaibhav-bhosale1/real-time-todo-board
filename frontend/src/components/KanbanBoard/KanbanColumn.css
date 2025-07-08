@@ -87,3 +87,33 @@
         padding-right: 2px;
     }
 }
+
+
+/* ... existing styles ... */
+
+.kanban-column.is-dragging-over {
+    background-color: #cfe2ff; /* Light blue when dragging over */
+    border: 2px dashed #007bff;
+}
+
+.task-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+    min-height: 50px;
+}
+
+.task-card-wrapper {
+    margin-bottom: 15px; /* Space between draggable items */
+}
+
+/* Style for when a draggable item is actually being dragged */
+.task-card-wrapper.is-dragging .task-card {
+    opacity: 0.7;
+    border: 2px dashed #007bff;
+    box-shadow: none;
+    transform: rotate(2deg); /* Subtle rotation for visual feedback */
+}
+
+/* ... rest of existing KanbanColumn.css ... */
+

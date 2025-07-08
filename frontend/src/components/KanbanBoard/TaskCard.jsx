@@ -1,9 +1,10 @@
 import React from 'react';
-import './TaskCard.css'; // Styling for individual task cards
+import './TaskCard.css';
 
-function TaskCard({ task }) { // `task` object will be passed as a prop
+// Added props: onEdit, onDelete, onSmartAssign
+function TaskCard({ task, onEdit, onDelete, onSmartAssign }) {
   const getPriorityClass = (priority) => {
-    switch (priority?.toLowerCase()) { // Use optional chaining in case priority is null/undefined
+    switch (priority?.toLowerCase()) {
       case 'high':
         return 'priority-high';
       case 'medium':
@@ -11,7 +12,7 @@ function TaskCard({ task }) { // `task` object will be passed as a prop
       case 'low':
         return 'priority-low';
       default:
-        return 'priority-default'; // Default style for unknown priority
+        return 'priority-default';
     }
   };
 
@@ -29,10 +30,9 @@ function TaskCard({ task }) { // `task` object will be passed as a prop
         <span className="task-status">{task.status}</span>
       </div>
       <div className="task-actions">
-        {/* Placeholder for future buttons */}
-        {/* <button className="edit-button">Edit</button>
-        <button className="delete-button">Delete</button>
-        <button className="smart-assign-button">Smart Assign</button> */}
+        <button onClick={onEdit} className="edit-button" aria-label="Edit Task">Edit</button>
+        <button onClick={onDelete} className="delete-button" aria-label="Delete Task">Delete</button>
+        <button onClick={onSmartAssign} className="smart-assign-button" aria-label="Smart Assign Task">Smart Assign</button>
       </div>
     </div>
   );
