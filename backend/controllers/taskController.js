@@ -88,25 +88,33 @@ const createTask = asyncHandler(async (req, res) => {
 // @route   PUT /api/tasks/:id
 // @access  Private
 const updateTask = asyncHandler(async (req, res) => {
-  const { title, description, status, priority, assignedTo } = req.body;
+  const { title, description, status, priority, assignedTo, version } = req.body; // Get 'version' from body
   const taskId = req.params.id;
 
-  const task = await Task.findById(taskId);
+  // Validate 'version' presence
+  if (version === undefined || version === null) {
+    res.status(400);
+    throw new Error('Task version is required for updates.');
+  }
 
-  if (!task) {
+  // First, fetch the task to get current user/assignedTo for authorization and initial values
+  const existingTaskForAuth = await Task.findById(taskId);
+
+  if (!existingTaskForAuth) {
     res.status(404);
     throw new Error('Task not found');
   }
 
-  if (task.user.toString() !== req.user.id && (task.assignedTo && task.assignedTo.toString() !== req.user.id)) {
+  // Ensure the logged-in user is the creator of the task OR is the assigned user
+  if (existingTaskForAuth.user.toString() !== req.user.id && (existingTaskForAuth.assignedTo && existingTaskForAuth.assignedTo.toString() !== req.user.id)) {
     res.status(401);
     throw new Error('Not authorized to update this task');
   }
 
   // Validation: Task titles must be unique per board (excluding current task's title)
-  if (title && title !== task.title) {
-    const existingTask = await Task.findOne({ user: req.user.id, title: title });
-    if (existingTask && existingTask._id.toString() !== taskId) {
+  if (title && title !== existingTaskForAuth.title) {
+    const existingTaskWithSameTitle = await Task.findOne({ user: req.user.id, title: title });
+    if (existingTaskWithSameTitle && existingTaskWithSameTitle._id.toString() !== taskId) {
       res.status(400);
       throw new Error('Task title must be unique.');
     }
@@ -125,36 +133,46 @@ const updateTask = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error('Assigned user not found.');
     }
-  
-}
+  }
 
-const oldStatus = task.status;
-  const oldAssignedTo = task.assignedTo ? task.assignedTo.toString() : null;
+  // Prepare fields to update
+  const updateFields = {
+    title: title || existingTaskForAuth.title,
+    description: description || existingTaskForAuth.description,
+    status: status || existingTaskForAuth.status,
+    priority: priority || existingTaskForAuth.priority,
+    assignedTo: assignedUser ? assignedUser._id : null,
+    $inc: { version: 1 } // Increment the version number atomically
+  };
 
-  const updatedTask = await Task.findByIdAndUpdate(
-    taskId,
+  // Perform the update with optimistic concurrency control
+  const updatedTask = await Task.findOneAndUpdate(
     {
-      title: title || task.title,
-      description: description || task.description,
-      status: status || task.status,
-      priority: priority || task.priority,
-      assignedTo: assignedUser ? assignedUser._id : null, // Set to null for unassigning, not undefined
+      _id: taskId,
+      version: version, // Only update if the version matches the one sent by the client
     },
-    { new: true }
-  ).populate('user', 'username email') // Populate creator details
-   .populate('assignedTo', 'username email'); // Populate assigned user details
+    updateFields,
+    { new: true } // Return the updated document
+  ).populate('user', 'username email')
+   .populate('assignedTo', 'username email');
+
+  if (!updatedTask) {
+    res.status(409); // Conflict status code
+    throw new Error('Conflict: Task has been updated by another user. Please refresh and try again.');
+  }
 
   // Emit 'taskUpdated' event to all connected clients
-  io.emit('taskUpdated', updatedTask); // Emitting the updated task data
+  io.emit('taskUpdated', updatedTask);
 
+  // Log the update action
   let updateDescription = `${req.user.username} updated task "${updatedTask.title}"`;
-  if (status && status !== oldStatus) {
-    updateDescription += ` (status changed from ${oldStatus} to ${status})`;
+  if (status && status !== existingTaskForAuth.status) { // Use existingTaskForAuth for old values
+    updateDescription += ` (status changed from ${existingTaskForAuth.status} to ${status})`;
   }
-  if (assignedTo && assignedTo !== oldAssignedTo) {
+  if (assignedTo && assignedTo !== (existingTaskForAuth.assignedTo ? existingTaskForAuth.assignedTo.toString() : null)) {
     const assignedUsername = updatedTask.assignedTo ? updatedTask.assignedTo.username : 'unassigned';
     updateDescription += ` (assigned to ${assignedUsername})`;
-  } else if (!assignedTo && oldAssignedTo) { // Task was unassigned
+  } else if (!assignedTo && (existingTaskForAuth.assignedTo)) {
       updateDescription += ` (unassigned)`;
   }
 
@@ -165,9 +183,9 @@ const oldStatus = task.status;
     updatedTask.title,
     updateDescription
   );
+
   res.status(200).json(updatedTask);
 });
-
 // @desc    Delete a task
 // @route   DELETE /api/tasks/:id
 // @access  Private
@@ -206,7 +224,11 @@ const deleteTask = asyncHandler(async (req, res) => {
 // @access  Private
 const smartAssignTask = asyncHandler(async (req, res) => {
   const taskId = req.params.id;
-
+const { version } = req.body;
+if (version === undefined || version === null) {
+    res.status(400);
+    throw new Error('Task version is required for smart-assign.');
+  }
   const task = await Task.findById(taskId);
 
   if (!task) {
@@ -237,16 +259,29 @@ const smartAssignTask = asyncHandler(async (req, res) => {
 
   const userToAssign = userTaskCounts[0];
 
-  const updatedTask = await Task.findByIdAndUpdate(
-    taskId,
-    { assignedTo: userToAssign.userId },
+  const updatedTask = await Task.findOneAndUpdate(
+    {
+      _id: taskId,
+      version: version, // Check version for smart-assign too
+    },
+    {
+      assignedTo: userToAssign.userId,
+      $inc: { version: 1 } // Increment version
+    },
     { new: true }
   ).populate('assignedTo', 'username email')
-   .populate('user', 'username email'); // Also populate creator for consistency in real-time updates
+   .populate('user', 'username email');
+
+  if (!updatedTask) {
+    res.status(409); // Conflict status code
+    throw new Error('Conflict: Task has been updated by another user. Please refresh and try again.');
+  }
 
   // Emit 'taskUpdated' event for smart assign as well
   io.emit('taskUpdated', updatedTask);
-   await logAction(
+
+  // Log the smart assign action
+  await logAction(
     req.user.id,
     'assigned',
     updatedTask._id,
@@ -255,7 +290,6 @@ const smartAssignTask = asyncHandler(async (req, res) => {
   );
   res.status(200).json(updatedTask);
 });
-
 
 module.exports = {
   getTasks,

@@ -5,13 +5,12 @@ const taskSchema = mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'User', // Reference to the User model
+      ref: 'User',
     },
     title: {
       type: String,
       required: true,
       trim: true,
-      // Validation for uniqueness per board and not matching column names will be handled in controller
     },
     description: {
       type: String,
@@ -19,25 +18,31 @@ const taskSchema = mongoose.Schema(
       trim: true,
     },
     assignedTo: {
-      type: mongoose.Schema.Types.ObjectId, // User ID to whom the task is assigned
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: false, // Not required at creation, can be assigned later
+      required: false,
     },
     status: {
       type: String,
       required: true,
-      enum: ['Todo', 'In Progress', 'Done'], // Allowed statuses 
+      enum: ['Todo', 'In Progress', 'Done'],
       default: 'Todo',
     },
     priority: {
       type: String,
       required: false,
-      enum: ['Low', 'Medium', 'High'], // Allowed priorities 
+      enum: ['Low', 'Medium', 'High'],
       default: 'Medium',
+    },
+    version: { // New field for optimistic concurrency
+      type: Number,
+      default: 0, // Start at version 0
+      required: true,
     },
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt timestamps
+    timestamps: true,
+    versionKey: false, // Disable Mongoose's default __v version key
   }
 );
 
