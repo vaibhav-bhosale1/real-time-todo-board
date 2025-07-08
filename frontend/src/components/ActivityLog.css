@@ -1,0 +1,92 @@
+.activity-log-panel {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.activity-log-panel h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.log-list {
+    max-height: 400px; /* Limit height and enable scrolling */
+    overflow-y: auto;
+    padding-right: 10px; /* For scrollbar spacing */
+}
+
+/* Custom scrollbar for activity log */
+.log-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.log-list::-webkit-scrollbar-track {
+    background: #f8f8f8;
+    border-radius: 10px;
+}
+
+.log-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.log-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.log-entry {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+}
+
+.log-timestamp {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.log-description {
+    font-size: 0.9rem;
+    color: #444;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.no-logs {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    padding: 20px;
+}
+
+.log-loading-spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+.log-error-message {
+    text-align: center;
+    color: #dc3545;
+    padding: 10px;
+    background-color: #ffebe8;
+    border: 1px solid #dc3545;
+    border-radius: 5px;
+    margin: 20px auto;
+}

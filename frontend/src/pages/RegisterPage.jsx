@@ -102,4 +102,21 @@ function RegisterPage() {
             type="password"
             id="confirmPassword"
             value={confirmPassword}
-            onChange={(e) => setConf
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
+        {error && <p className="error-message">{error}</p>}
+        {success && <p className="success-message">{success}</p>}
+        <button type="submit" disabled={loading}>
+          {loading ? 'Registering...' : 'Register'}
+        </button>
+      </form>
+      <Link to="/login" className="form-link">
+        Already have an account? Login here.
+      </Link>
+    </div>
+  );
+}
+
+export default RegisterPage;

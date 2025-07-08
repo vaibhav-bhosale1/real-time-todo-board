@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/taskRoutes');
@@ -12,6 +13,11 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow only your frontend origin
+  credentials: true,              // If you're sending cookies or auth headers
+}));
 
 const server = http.createServer(app);
 
