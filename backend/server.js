@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const connectDB = require('./config/db'); // Import the DB connection function
+const connectDB = require('./config/db');
+const userRoutes = require('./routes/userRoutes'); // Import user routes
 
 // Connect to database
 connectDB();
@@ -14,6 +15,19 @@ app.use(express.json());
 // Basic route
 app.get('/', (req, res) => {
   res.send('API is running...');
+});
+
+// User Routes
+app.use('/api/users', userRoutes);
+
+// Basic Error Handling Middleware (can be expanded later)
+app.use((err, req, res, next) => {
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode);
+  res.json({
+    message: err.message,
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  });
 });
 
 // Start the server
