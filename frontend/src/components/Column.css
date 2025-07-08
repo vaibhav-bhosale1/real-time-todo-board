@@ -1,0 +1,50 @@
+.column {
+    background-color: #e0e6ed;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 200px; /* Ensure columns have a minimum height */
+    display: flex;
+    flex-direction: column;
+}
+
+.column-title {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #a8b0b9;
+    text-align: center;
+}
+
+.task-list {
+    flex-grow: 1; /* Allow the task list to take up remaining space */
+    overflow-y: auto; /* Enable scrolling if too many tasks */
+    padding-right: 5px; /* For scrollbar spacing */
+}
+
+/* Custom scrollbar styles */
+.task-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.task-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.task-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.no-tasks {
+    color: #666;
+    text-align: center;
+    margin-top: 30px;
+    font-style: italic;
+}
