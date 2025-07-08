@@ -6,6 +6,7 @@ import KanbanColumn from './KanbanColumn';
 import Modal from '../common/Modal';
 import TaskForm from '../common/TaskForm';
 import TaskCard from './TaskCard';
+import socket from '../../utils/socket';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import './KanbanBoard.css';
 import '../common/LoadingSpinner.css';
@@ -47,10 +48,48 @@ function KanbanBoard() {
 
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]);
+      socket.on('taskCreated', (newTask) => {
+      console.log('taskCreated event received:', newTask);
+      setTasks(prevTasks => [...prevTasks, newTask]);
+    });
+
+    socket.on('taskUpdated', (updatedTask) => {
+      console.log('taskUpdated event received:', updatedTask);
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task._id === updatedTask._id ? updatedTask : task
+        )
+      );
+      // If the updated task was the one causing a conflict, close the conflict modal
+      if (conflictModalOpen && conflictedTask && conflictedTask._id === updatedTask._id) {
+          setConflictModalOpen(false);
+          setConflictedTask(null);
+          setLatestTaskVersion(null);
+          setAttemptedChanges(null);
+          setError(''); // Clear any conflict error
+      }
+    });
+
+    socket.on('taskDeleted', (deletedTaskId) => {
+      console.log('taskDeleted event received:', deletedTaskId);
+      setTasks(prevTasks => prevTasks.filter(task => task._id !== deletedTaskId));
+    });
+
+    // Cleanup function for useEffect to prevent memory leaks
+    return () => {
+      socket.off('taskCreated');
+      socket.off('taskUpdated');
+      socket.off('taskDeleted');
+      // Note: We don't disconnect the socket here if we want it to persist across component unmounts
+      // (e.g., if navigating away from KanbanBoard temporarily).
+      // If you want a full disconnect when the component unmounts, add:
+      // socket.disconnect();
+    };
+  }, [fetchTasks, conflictModalOpen, conflictedTask]);
 
   const handleLogout = () => {
     logout();
+     socket.disconnect();
     navigate('/login');
   };
 
@@ -68,7 +107,7 @@ function KanbanBoard() {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
         await deleteTask(taskId);
-        setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
+       
         setError('');
       } catch (err) {
         console.error('Error deleting task:', err);
@@ -145,12 +184,7 @@ function KanbanBoard() {
           version: latestTaskVersion.version,
         };
         await updateTask(conflictedTask._id, updatedTaskData);
-        setConflictModalOpen(false);
-        setConflictedTask(null);
-        setLatestTaskVersion(null);
-        setAttemptedChanges(null);
         setError('');
-        setIsModalOpen(false);
       } catch (err) {
         console.error('Error overwriting task:', err);
         setError(err.response?.data?.message || 'Failed to overwrite task. Please try again.');
