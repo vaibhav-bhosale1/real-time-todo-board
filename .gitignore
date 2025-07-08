@@ -1,0 +1,23 @@
+# Node.js backend
+backend/node_modules/
+backend/.env
+backend/dist/
+backend/build/
+backend/logs/
+backend/*.log
+backend/npm-debug.log*
+
+# Ignore VS Code settings globally
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Optional: if you later add a frontend (e.g., React)
+frontend/node_modules/
+frontend/build/
+frontend/.env
+
+# Ignore archives and misc
+*.tgz
