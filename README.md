@@ -5,8 +5,8 @@ A web-based collaborative to-do board application built with the MERN stack wher
 ## 🌐 Live Demo & Resources
 
 - **🔗 [Live Application](https://real-time-todo-board.vercel.app/)**
-- **📺 [Demo Video](https://your-demo-video-link.com)** - 5-10 minute walkthrough
-- **📄 [Logic Document](./Logic_Document.pdf)** - Smart Assign & Conflict Handling explanation
+- **📺 [Demo Video](https://www.loom.com/share/c622f896574141af9f6035cd9e3319a1?sid=01f24a0a-80e6-4d7d-9a01-13001a29fd72)** - 5-10 minute walkthrough
+- **📄 [Logic Document](https://github.com/vaibhav-bhosale1/real-time-todo-board/blob/main/logicdocument.md)** - Smart Assign & Conflict Handling explanation
 - **💻 [GitHub Repository](https://github.com/vaibhav-bhosale1/real-time-todo-board)**
 
 ## 📋 Project Overview
@@ -385,8 +385,8 @@ This project was built as part of a Full Stack Development assignment with the f
 ### 📋 Submission Links
 - **GitHub Repository**: [https://github.com/vaibhav-bhosale1/real-time-todo-board](https://github.com/vaibhav-bhosale1/real-time-todo-board)
 - **Live Application**: [https://real-time-todo-board.vercel.app/](https://real-time-todo-board.vercel.app/)
-- **Demo Video**: [Link to demo video](https://your-demo-video-link.com)
-- **Logic Document**: [Logic_Document.pdf](./Logic_Document.pdf)
+- **Demo Video**: [Link to demo video](https://www.loom.com/share/c622f896574141af9f6035cd9e3319a1?sid=01f24a0a-80e6-4d7d-9a01-13001a29fd72)
+- **Logic Document**: [Logic_Document.pdf](https://github.com/vaibhav-bhosale1/real-time-todo-board/blob/main/logicdocument.md)
 
 ### 🎯 Technical Highlights
 - **No UI Framework**: Built entirely with custom CSS and React components
@@ -405,15 +405,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Vaibhav Bhosale**
 - GitHub: [@vaibhav-bhosale1](https://github.com/vaibhav-bhosale1)
-- Portfolio: [Your Portfolio Link]
+- Portfolio: [Vaibhav Bhosale](https://vaibhavbhosale.vercel.app)
 
-## 🙏 Acknowledgments
 
-- Socket.IO for real-time communication
-- MongoDB for robust data storage
-- React community for excellent documentation
-- All contributors and testers
-
----
 
 **⭐ Star this repository if you found it helpful!**
