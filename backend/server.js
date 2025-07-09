@@ -61,10 +61,11 @@ app.use('/api/actionlogs', actionLogRoutes);
 // Serve frontend (if applicable for deployment)
 // For local development, this part is often commented out or handled differently
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../frontend/dist'))); // Manually re-type this line
-    app.get('*', (req, res) => // Manually re-type this line
-      res.sendFile(path.resolve(__dirname, '../frontend/dist', 'index.html'))
-    );
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../frontend/dist', 'index.html'));
+  });
 }
 
 // Error handling middleware (should be last middleware)
