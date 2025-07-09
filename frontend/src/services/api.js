@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create a custom Axios instance
 const api = axios.create({
-  baseURL: '/', // Use proxy setting in package.json for development
+  baseURL: 'https://real-time-todo-board.onrender.com', // Use proxy setting in package.json for development
   headers: {
     'Content-Type': 'application/json',
   },
