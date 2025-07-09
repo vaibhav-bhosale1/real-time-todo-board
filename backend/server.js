@@ -53,9 +53,9 @@ app.use(cors({
 }));
 
 // Routes
-app.use('/api/tasks', taskRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/actionlogs', actionLogRoutes);
+//app.use('/api/tasks', taskRoutes);
+//app.use('/api/users', userRoutes);
+//app.use('/api/actionlogs', actionLogRoutes);
 // Add other routes as needed
 
 // Serve frontend (if applicable for deployment)
