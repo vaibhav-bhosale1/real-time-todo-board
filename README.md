@@ -5,6 +5,7 @@ A web-based collaborative to-do board application built with the MERN stack wher
 ## 🌐 Live Demo & Resources
 
 - **🔗 [Live Application](https://real-time-todo-board.vercel.app/)**
+- **[backend hosted url](https://real-time-todo-board.onrender.com)**
 - **📺 [Demo Video](https://www.loom.com/share/c622f896574141af9f6035cd9e3319a1?sid=01f24a0a-80e6-4d7d-9a01-13001a29fd72)** - 5-10 minute walkthrough
 - **📄 [Logic Document](https://github.com/vaibhav-bhosale1/real-time-todo-board/blob/main/logicdocument.md)** - Smart Assign & Conflict Handling explanation
 - **💻 [GitHub Repository](https://github.com/vaibhav-bhosale1/real-time-todo-board)**
