@@ -22,7 +22,7 @@ const server = http.createServer(app); // Create HTTP server from app
 // Initialize Socket.IO with CORS settings
 const io = new Server(server, {
     cors: {
-        origin: ['http://localhost:5173', 'http://localhost:3000'], // Allow your frontend origin(s)
+        origin: ['http://localhost:5173', 'http://localhost:3000','https://real-time-todo-board.vercel.app'], // Allow your frontend origin(s)
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         credentials: true
     }
@@ -48,7 +48,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // CORS middleware (ensure it allows your frontend origin)
 app.use(cors({
-    origin: 'http://localhost:5173', // Your frontend URL
+    origin: 'https://real-time-todo-board.vercel.app', // Your frontend URL
     credentials: true
 }));
 
