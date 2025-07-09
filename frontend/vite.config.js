@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
    server: {
     proxy: {
-      '/api': 'http://localhost:5000', // point to your FastAPI server
+      '/api': 'https://real-time-todo-board.onrender.com', // point to your FastAPI server
     },
     historyApiFallback: true,
   },
